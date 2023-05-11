@@ -6,6 +6,42 @@ const User=require('../../models/User')
 const jwt=require('jsonwebtoken');
 //get api/users
 //test route
+
+router.post('/login',[
+    check('email','email is required').isEmail(),
+    check('password','password required').not().isEmpty()
+],
+async(req,res)=>{
+      const errors=validationResult(req);
+      if(!errors.isEmpty()){
+        return res.status(400).json({errors: errors.array()});
+      }
+      let {email,password}=req.body;
+      try{
+       console.log({email});
+       let user=await User.findOne({email:email});
+       if(user){
+        let checkpassword=await bcrypt.compare(password,user.password);
+        if(!checkpassword){
+            return res.status(400).json({err:'wrong password'});
+        }
+        const payload={
+            user:{
+                id:user.id
+            }
+        }
+        let token=jwt.sign(payload,process.env.SECRET,{expiresIn:'1h'});
+           res.json({msg:{token}});
+       }else{
+           res.status(400).json({err:'user doesnt exists'});
+       }
+      }catch(err){
+        console.error(err.message);
+        res.status(500).send('server error');
+      }
+      
+})
+
 router.post('/new',[
 
     check('name','Name is required').not().isEmpty(),
@@ -16,33 +52,28 @@ router.post('/new',[
 async (req,res)=>{
     const errors=validationResult(req);
     if(!errors.isEmpty()){
-        return res.status(400).json({errors: errors.array()});
+        return res.status(400).json({err: errors.array()});
     }
     const {name,email,password}=req.body;
     try{
         let user=await User.findOne({email:email});
         if(user){
-            res.status(400).json({errors:[{msg:'user already exists'}]});
+            return res.status(400).json({err:'user already exists'});
         }else{
             const newuser=new User({name:name,email:email,password:password})
-            bcrypt.hash(newuser.password,10,(error,hashedpassword)=>{
-                if(error){
-                    throw error;
-                }
+            let salt=await bcrypt.genSalt(10);
+            let hashedpassword=await bcrypt.hash(newuser.password,salt);
                 newuser.password=hashedpassword;
                 newuser.save();
-            })
             const payload={
                 user:{
                     id:newuser.id
                 }
             }
-            jwt.sign(payload,process.env.SECRET,{expiresIn:'1h'},(err,token)=>{
-                 if(err){
-                    throw err;
-                 }
-                 res.json({token});
-            });
+            let token =await jwt.sign(payload,process.env.SECRET,{expiresIn:'1h'});
+            if(token){
+                res.send({msg:{token}});
+            }
         }
     } catch(err){
         console.error(err.message);

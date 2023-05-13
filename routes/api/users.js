@@ -37,7 +37,7 @@ async(req,res)=>{
        }
       }catch(err){
         console.error(err.message);
-        res.status(500).send('server error');
+        res.status(400).json({err:'server error'});
       }
       
 })
@@ -77,7 +77,7 @@ async (req,res)=>{
         }
     } catch(err){
         console.error(err.message);
-        res.status(500).send('server error');
+        res.status(400).json({err:'server error'});
     }
 });
 module.exports=router;

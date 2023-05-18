@@ -31,7 +31,7 @@ async(req,res)=>{
             }
         }
         let token=jwt.sign(payload,process.env.SECRET,{expiresIn:'1h'});
-           res.json({msg:{token}});
+           res.json({data:{token}});
        }else{
            res.status(400).json({err:'user doesnt exists'});
        }
@@ -72,7 +72,7 @@ async (req,res)=>{
             }
             let token =await jwt.sign(payload,process.env.SECRET,{expiresIn:'1h'});
             if(token){
-                res.send({msg:{token}});
+                res.send({data:{token}});
             }
         }
     } catch(err){

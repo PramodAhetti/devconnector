@@ -52,9 +52,8 @@ router.post('/delete',userauth,async (req,res)=>{
 router.post('/addcomment',userauth,async(req,res)=>{
       try{
          let post=await posts.findById(req.body.post_id);
-         post.comment.unshift({user:req.body.user_id,comment:req.body.comment});
+         post.comment.unshift({index:post.__v,user:req.body.user_id,comment:req.body.comment});
          await post.save();
-         console.log(post.comment);
          res.send({msg:"commented to this post"})
       }catch(err){
         res.status(400).send({err:"server error"})
@@ -64,8 +63,8 @@ router.post('/addcomment',userauth,async(req,res)=>{
 router.delete('/deletecomment',userauth,async(req,res)=>{
     try{
        let post=await posts.findById(req.body.post_id);
-       post.comment.filter((data)=>{data.user.toString()!== req.body.user_id;
-       })
+       let comment =post.comment.find((data)=>{return (data.user.toString()===req.body.user_id && data.index.toString()===req.body.index)});
+       post.comment.remove(comment);
        await post.save();
        res.send({msg:"comment on this post is deleted"})
     }catch(err){

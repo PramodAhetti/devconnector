@@ -71,6 +71,7 @@ async (req,res)=>{
                 }
             }
             let token =await jwt.sign(payload,process.env.SECRET,{expiresIn:'1h'});
+            console.log(token);
             if(token){
                 res.send({data:{token}});
             }

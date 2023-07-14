@@ -15,7 +15,7 @@ app.use(morgan('dev'))
 
 
 //routes
-app.get('',(req,res)=>res.send("main"));
+app.get('/main',(req,res)=>res.send({name:"pramod",token:"adfa5545421212121",user_id:"ad4fa65df4a5dfaa"}));
 
 app.use('/user',require('./routes/api/users'));
 app.use('/post',require('./routes/api/post'));

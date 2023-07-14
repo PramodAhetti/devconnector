@@ -6,7 +6,8 @@ const posts=require('../../models/Post')
 //test route
 
 //route to get all the posts
-router.get('/all',userauth,async(req,res)=>{
+router.post('/all',userauth,async(req,res)=>{
+    console.log(req)
     try{
         let allposts=await posts.find().sort({['date']:1});
         res.send(allposts);
